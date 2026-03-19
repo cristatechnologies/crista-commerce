@@ -66,7 +66,7 @@ export default function HeroSlider() {
           {/* Image wrapper */}
           <div className="relative w-full h-full flex items-center justify-center">
             <Image
-              src={sliderImport}
+              src={`${base}${slide.image}`}
               alt={slide.title_one ?? `Slide ${index + 1}`}
               fill
               priority={index === 0}
