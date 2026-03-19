@@ -1,13 +1,20 @@
 "use client";
-import { useState, useEffect, } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Search, ShoppingBag, User, Heart, LogIn, LogOut,ChevronDown } from "lucide-react";
+import {
+  Search,
+  ShoppingBag,
+  User,
+  Heart,
+  LogIn,
+  LogOut,
+  ChevronDown,
+} from "lucide-react";
 import MobileMenuDrawer from "./MobileMenuDrawer";
 import { useAppSelector } from "@/lib/redux/hook";
 import { useCart } from "@/context/Cart-Context";
 import SearchOverlay from "./SearchOverlay";
-
 import { settings } from "@/lib/redux/features/website/settings";
 import { getAuthToken } from "@/services/Auth-Token";
 import { logoutUser } from "@/services/authApi";
@@ -19,41 +26,15 @@ import {
   TooltipTrigger,
 } from "../shadcn/components/ui/tooltip";
 import toast from "react-hot-toast";
-import { usePathname } from "next/navigation";
-
 
 export default function Header() {
   const router = useRouter();
-  const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
-  const [isSticky, setIsSticky] = useState<boolean>(false);
   const [searchOpen, setSearchOpen] = useState<boolean>(false);
   const websiteData = useAppSelector((state) => state.website.data);
   const { openCart } = useCart();
-  // const social_icons = websiteData?.social_links;
   const { logo, store_name } = settings();
-  // const footerData = websiteData?.footer;
   const token = getAuthToken();
-  const isHomePage = pathname === "/";
-  
-  useEffect(() => {
-    // Only add scroll listener if it's the home page
-    if (isHomePage) {
-      const handleScroll = () => {
-        if (window.scrollY > 0) {
-          setIsSticky(true);
-        } else {
-          setIsSticky(false);
-        }
-      };
-
-      window.addEventListener("scroll", handleScroll);
-      return () => window.removeEventListener("scroll", handleScroll);
-    } else {
-      // On non-home pages, always sticky
-      setIsSticky(true);
-    }
-  }, [isHomePage]); // Add isHomePage as dependency
 
   const Logout = async () => {
     const response = await logoutUser();
@@ -66,93 +47,66 @@ export default function Header() {
     }
   };
 
- 
-
   return (
     <>
-      {/* Free shipping banner - always at the top and not sticky */}
-      {/* <div className="font-manrope bg-black w-full text-white text-center py-2 text-sm font-medium">
-        Free Shipping on All Orders
-      </div> */}
-      {/* Main header that becomes sticky on scroll */}
-      <header
-        className={`font-manrope w-full hidden lg:block ${
-          isSticky
-            ? "fixed top-0 left-0 right-0 z-50 bg-[var(--primary-color)] shadow-md"
-            : "absolute top-0 left-0 right-0 z-50 bg-transparent text-[var(--secondary-text-color)]"
-        }`}
-      >
-        {/* Navigation bar */}
-        <nav
-          className={`font-manrope border-t border-b ${
-            isSticky
-              ? "bg-white border-gray-200"
-              : isHomePage
-              ? "bg-transparent border-transparent"
-              : "bg-white border-gray-200"
-          }`}
-        >
-          <div className="container mx-auto flex items-center justify-between px-4">
-            {/* Logo  */}
-            <Link href="/" className="text-lg font-bold tracking-widest">
+      {/* ── Desktop header — always fixed, always white ── */}
+      <header className="font-manrope w-full hidden lg:block fixed top-0 left-0 right-0 z-50 bg-white shadow-md">
+        <nav className="border-b border-gray-200 bg-white">
+          <div className="container mx-auto flex items-center justify-between px-4 py-1">
+            <Link
+              href="/"
+              className="text-lg font-bold tracking-widest flex-shrink-0"
+            >
               {logo !== "" ? (
                 <Image
                   src={`${process.env.NEXT_PUBLIC_BASE_URL}${logo}`}
                   alt="Logo"
-                  height={60}
-                  width={60}
-                  className=""
+                  height={70}
+                  width={70}
                 />
               ) : (
-                <p className="capitalize"> {store_name}</p>
+                <p className="capitalize">{store_name}</p>
               )}
             </Link>
 
-            {/* Main navigation */}
             <div className="flex items-center space-x-8">
-              <Link href="/" className="py-4 text-[12px] font-semibold">
+              <Link
+                href="/"
+                className="py-5 text-[12px] font-semibold text-gray-900 hover:text-black"
+              >
                 HOME
               </Link>
               <NavItem
                 label="SHOP"
                 categories={websiteData?.productCategories}
-                isSticky={isSticky}
               />
-              {/* <NavItem label="BLOG" /> */}
               <Link
                 href="/about-us"
-                className="py-4  cursor-pointer  text-[12px] font-semibold"
+                className="py-5 text-[12px] font-semibold text-gray-900 hover:text-black"
               >
                 ABOUT US
               </Link>
               <Link
                 href="/blogs"
-                className="py-4  cursor-pointer  text-[12px] font-semibold"
+                className="py-5 text-[12px] font-semibold text-gray-900 hover:text-black"
               >
-               BLOGS
+                BLOGS
               </Link>
               <Link
                 href="/contact-us"
-                className="py-4  cursor-pointer  text-[12px] font-semibold"
+                className="py-5 text-[12px] font-semibold text-gray-900 hover:text-black"
               >
                 CONTACTS
               </Link>
             </div>
 
-            {/* Address and hours */}
-            <div
-              className={`flex items-center space-x-4 ${
-                isSticky ? "text-white " : "text-gray-600"
-              }`}
-            >
+            <div className="flex items-center space-x-4 text-gray-600">
               {token ? (
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <button
                       onClick={Logout}
-                      className={`hover:text-gray-900 cursor-pointer ${
-                        isSticky ? "text-gray-600" : "text-white"
-                      }`}
+                      className="hover:text-gray-900 cursor-pointer"
                     >
                       <LogOut size={20} />
                       <span className="sr-only">Logout</span>
@@ -165,12 +119,7 @@ export default function Header() {
               ) : (
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Link
-                      href="/sign-in"
-                      className={`hover:text-gray-900 ${
-                        isSticky ? "text-gray-600" : "text-white"
-                      }`}
-                    >
+                    <Link href="/sign-in" className="hover:text-gray-900">
                       <LogIn size={20} />
                       <span className="sr-only">Login</span>
                     </Link>
@@ -184,9 +133,7 @@ export default function Header() {
                 <TooltipTrigger asChild>
                   <Link
                     href="/profile/dashboard"
-                    className={`hover:text-gray-900 ${
-                      isSticky ? "text-gray-600" : "text-white"
-                    }`}
+                    className="hover:text-gray-900"
                   >
                     <User size={20} />
                     <span className="sr-only">Account</span>
@@ -202,19 +149,12 @@ export default function Header() {
                   e.preventDefault();
                   setSearchOpen(true);
                 }}
-                className={`hover:text-gray-900 ${
-                  isSticky ? "text-gray-600" : "text-white"
-                }`}
+                className="hover:text-gray-900"
               >
                 <Search size={20} />
                 <span className="sr-only">Search</span>
               </Link>
-              <Link
-                href="/wishlist"
-                className={`hover:text-gray-900 ${
-                  isSticky ? "text-gray-600" : "text-white"
-                }`}
-              >
+              <Link href="/wishlist" className="hover:text-gray-900">
                 <Heart size={20} />
                 <span className="sr-only">Wishlist</span>
               </Link>
@@ -224,9 +164,7 @@ export default function Header() {
                   e.preventDefault();
                   openCart();
                 }}
-                className={`hover:text-gray-900 ${
-                  isSticky ? "text-gray-600" : "text-white"
-                }`}
+                className="hover:text-gray-900"
               >
                 <ShoppingBag size={20} />
                 <span className="sr-only">Cart</span>
@@ -235,20 +173,13 @@ export default function Header() {
           </div>
         </nav>
       </header>
-      {/* Mobile header */}
-      <header
-        className={`w-full flex items-center justify-between px-4 py-2 lg:hidden border-b ${
-          isSticky || !isHomePage
-            ? "fixed top-0 left-0 right-0 z-50 bg-white shadow-md"
-            : "absolute top-0 left-0 right-0 z-50 bg-transparent"
-        }`}
-      >
-        {/* Hamburger menu button */}
+
+      {/* ── Mobile header — always fixed, always white ── */}
+      <header className="font-manrope w-full flex items-center justify-between px-4 py-3 lg:hidden fixed top-0 left-0 right-0 z-50 bg-white shadow-md border-b border-gray-200">
         <button
           onClick={() => setMobileMenuOpen(true)}
           className="text-gray-700"
         >
-          {/* Hamburger icon */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-6 w-6"
@@ -264,7 +195,6 @@ export default function Header() {
             />
           </svg>
         </button>
-        {/* Logo in center */}
         <Link href="/" className="text-lg font-bold tracking-widest">
           {logo !== "" ? (
             <img
@@ -276,9 +206,6 @@ export default function Header() {
             <p>SHOPICO ECOM</p>
           )}
         </Link>
-
-        {/* Cart icon on right */}
-        {/* Search icon */}
         <div className="flex items-center space-x-4">
           <Link
             href="#"
@@ -291,12 +218,10 @@ export default function Header() {
             <Search size={20} />
             <span className="sr-only">Search</span>
           </Link>
-
           <Link
             href="#"
             onClick={(e) => {
               e.preventDefault();
-
               openCart();
             }}
             className="text-gray-600 hover:text-gray-900"
@@ -306,23 +231,7 @@ export default function Header() {
           </Link>
         </div>
       </header>
-      {/* Add padding to the top of the content when header is sticky to prevent content from being hidden */}
-      {/* Add padding to the top of the content when:
-          - On home page and sticky
-          - On any other page (regardless of sticky state) */}
-      <div
-        className={`hidden lg:block ${
-          (isSticky && isHomePage) || !isHomePage ? "pt-[90px]" : ""
-        }`}
-      ></div>
-      {/* For mobile, we need padding when:
-          - On home page and sticky
-          - On any other page (regardless of sticky state) */}
-      <div
-        className={`lg:hidden ${
-          (isSticky && isHomePage) || !isHomePage ? "pt-[80px]" : ""
-        }`}
-      ></div>
+
       <MobileMenuDrawer
         open={mobileMenuOpen}
         categories={websiteData?.productCategories}
@@ -339,26 +248,18 @@ interface Category {
   slug: string;
   children: Category[];
 }
-
 interface NavItemProps {
   label: string;
   categories?: Category[];
-  isSticky?: boolean;
 }
 
-function NavItem({ label, categories ,isSticky}: NavItemProps) {
+function NavItem({ label, categories }: NavItemProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const showCategoriesDropdown =
     label === "SHOP" && categories && categories.length > 0;
 
-    const handleButtonClick = () => {
-      if (showCategoriesDropdown) {
-        setIsOpen(!isOpen);
-      }
-    };
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -366,58 +267,40 @@ function NavItem({ label, categories ,isSticky}: NavItemProps) {
         !dropdownRef.current.contains(event.target as Node) &&
         buttonRef.current &&
         !buttonRef.current.contains(event.target as Node)
-      ) {
+      )
         setIsOpen(false);
-      }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Improved hover handling
-  // const handleMouseEnter = () => {
-  //   setIsOpen(true);
-  // };
-
-  const handleDropdownMouseOver = () => setIsOpen(true);
-  const handleDropdownMouseOut = () => setIsOpen(false);
-
   return (
-    <div className="py-4">
+    <div className="py-5">
       <button
         ref={buttonRef}
-        onClick={handleButtonClick}
+        onClick={() => showCategoriesDropdown && setIsOpen(!isOpen)}
         onMouseOver={() => setIsOpen(true)}
-        className={`flex items-center cursor-pointer text-[12px] font-semibold ${
-          isSticky ? "text-gray-900" : "text-white"
-        }`}
+        className="flex items-center cursor-pointer text-[12px] font-semibold text-gray-900 hover:text-black"
       >
         {label}
         {showCategoriesDropdown && (
           <ChevronDown
             size={16}
-            className={`ml-1 transition-transform ${
-              isOpen ? "rotate-180" : ""
-            } ${isSticky ? "text-gray-900" : "text-white"}`}
+            className={`ml-1 text-gray-900 transition-transform ${isOpen ? "rotate-180" : ""}`}
           />
         )}
       </button>
-
-      {/* Dropdown container */}
       {showCategoriesDropdown && isOpen && (
         <div
           ref={dropdownRef}
-          onMouseOver={handleDropdownMouseOver}
-          onMouseOut={handleDropdownMouseOut}
-          className={`absolute left-0 right-0 top-full z-50 w-screen shadow-lg max-h-[80vh] overflow-y-auto ${
-            isSticky ? "bg-white" : "bg-white text-black"
-          }`}
+          onMouseOver={() => setIsOpen(true)}
+          onMouseOut={() => setIsOpen(false)}
+          className="absolute left-0 right-0 top-full z-50 w-screen bg-white shadow-lg max-h-[80vh] overflow-y-auto"
         >
           <div className="grid grid-cols-4 gap-6 px-12 py-6">
-            {categories.map((category) => (
+            {categories!.map((category) => (
               <ul key={category.id} className="space-y-2">
-                <CategoryItem category={category} isSticky={isSticky} />
+                <CategoryItem category={category} />
               </ul>
             ))}
           </div>
@@ -426,39 +309,26 @@ function NavItem({ label, categories ,isSticky}: NavItemProps) {
     </div>
   );
 }
+
 function CategoryItem({
   category,
   depth = 0,
-  isSticky,
 }: {
   category: Category;
   depth?: number;
-  isSticky?: boolean;
 }) {
   return (
     <li className={`ml-${depth * 4}`}>
       <Link
         href={`/shop/${category.slug}`}
-        className={`block ${
-          depth === 0
-            ? `font-bold ${isSticky ? "text-gray-900" : "text-black"}`
-            : depth === 1
-            ? `${isSticky ? "text-gray-600" : "text-black"}`
-            : `${isSticky ? "text-gray-500" : "text-black"} text-sm`
-        } hover:text-black`}
+        className={`block hover:text-black ${depth === 0 ? "font-bold text-gray-900" : depth === 1 ? "text-gray-600" : "text-gray-500 text-sm"}`}
       >
         {category.name}
       </Link>
-
       {category.children && category.children.length > 0 && (
         <ul className="mt-2 space-y-2">
           {category.children.map((child) => (
-            <CategoryItem
-              key={child.id}
-              category={child}
-              depth={depth + 1}
-              isSticky={isSticky}
-            />
+            <CategoryItem key={child.id} category={child} depth={depth + 1} />
           ))}
         </ul>
       )}
